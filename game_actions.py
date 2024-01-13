@@ -3,14 +3,15 @@ import time
 
 class GameActions:
 
-    def __init__(self, force_player_hand: [] = None, force_dealer_hand: [] = None, action: [] = None):
-        self.deck = deck.Deck()
+    def __init__(self, force_player_hand: [] = None, force_dealer_hand: [] = None, action: [] = None, size: int = 1):
+        self.deck = deck.Deck(size)
         self.player_cards = []
         self.player_ace_count = 0
         self.dealer_cards = []
         self.dealer_ace_count = 0
-        ## we have this conditional to allow forced hands for testing and data analysis
-        ## it conditionally fills a hand with the cards aforementioned, and randomly deals the rest
+
+        # we have this conditional to allow forced hands for testing and data analysis
+        # it conditionally fills a hand with the cards aforementioned, and randomly deals the rest
         if force_player_hand == None and force_dealer_hand == None:
             self.deal()
         elif force_player_hand == None and force_dealer_hand != None:
@@ -24,13 +25,27 @@ class GameActions:
         else:
             self.player_cards = force_player_hand; self.dealer_cards = force_dealer_hand
         
-        if(action == None): self.play_game()
-        else: self.play_simulated_game(action)
+        force_player_hand = [] if force_player_hand is None else force_player_hand
+        force_dealer_hand = [] if force_dealer_hand is None else force_dealer_hand
 
+        # removes the cards from the deck that are in the forced hands
+        for player_forced_cards in force_player_hand:
+            self.deck.force_deal(player_forced_cards)
+        for dealer_forced_cards in force_dealer_hand:
+            self.deck.force_deal(dealer_forced_cards)
+
+    """
+    Plays a game of blackjack for a user. Happens slowly and prints values for the user to see.
+    Returns: an integer multiplier of the bet
+    """
     def play_game(self):
+
         print(f"Player: {self.player_cards}")
         print(f"Dealer: [{self.dealer_cards[0]}, ??]")
 
+        # if the dealers visible card is an ace, ask for insurance
+        # for ease, we play insurance similar to surrender, where the player gets half their bet back. This will change with the bot
+        insurance_taken = False
         if(self.dealer_cards[0][0] == "A"):
             player_input = input("Dealer shows an ace. Insurance? Y/N:")
 
@@ -40,7 +55,7 @@ class GameActions:
             if(player_input == "Y"):
                 return 0.5
 
-        check_blackjack = self.check_blackjack()
+        check_blackjack = self.check_blackjack(insurance_taken)
         if(check_blackjack != -1):
             if(check_blackjack == 1):
                 print("Push!")
@@ -73,11 +88,15 @@ class GameActions:
                 return 0
 
         print(f"Your final hand: {self.player_cards}")
-        print(f"Dealer's hand: {self.dealer_cards}")
+        print(f"Dealer's hand: {self.dealer_cards} {self.dealer_ace_count}")
 
         time.sleep(2)
 
         self.play_dealer()
+
+        if(self.get_dealer_number() > 21):
+            print("You win!")
+            return 2
 
         print(f"Dealer's final hand: {self.dealer_cards}")
 
@@ -92,25 +111,26 @@ class GameActions:
             return 2
    
     def play_simulated_game(self, action: str):
-        pass 
+        pass
 
     def play_dealer(self):
         dealer_number = self.get_dealer_number()
-        while(dealer_number < 17 or (dealer_number == 17 and self.dealer_ace_count > 0)):
+        while(dealer_number < 17 or (dealer_number >= 17 and self.dealer_ace_count > 0)):
             self.hit("dealer")
             print(f"Dealer hits: {self.dealer_cards[-1]}")
             time.sleep(1)
             print(f"Dealer's current hand: {self.dealer_cards}")
             time.sleep(1)
             dealer_number = self.get_dealer_number()
+            print(self.get_dealer_number())
         if(dealer_number > 21):
-            print("Dealer busted!")
+            print("Dealer bust!")
             return 2
 
 
     """
     Calculates the value of a players hand
-    Returns the value of the player's hand, conservatively"""
+    Returns the value of the player's hand, liberably accounting for aces"""
     def get_player_number(self):
         player_number = 0
         for card in self.player_cards:
@@ -149,7 +169,7 @@ class GameActions:
             self.player_cards.append(self.deck.deal())
             self.dealer_cards.append(self.deck.deal())
 
-    def check_blackjack(self):
+    def check_blackjack(self, insurance_taken: bool):
         player_blackjack = self.get_player_number() == 21
         dealer_blackjack = self.get_dealer_number() == 21
 
@@ -163,6 +183,7 @@ class GameActions:
     
 def main():
     game = GameActions()
+    game.play_game()
 
 if __name__ == "__main__":
     main()

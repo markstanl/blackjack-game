@@ -1,10 +1,15 @@
+import random
+
 class Card:
-    def __init__(self, suit: str, value: int):
+    def __init__(self, value: int, suit: str):
         if(suit not in ["Hearts", "Diamonds", "Spades", "Clubs"]):
             raise ValueError("Invalid suit")
-        if(value not in range(1, 14)):
+        if(suit == None):
+            self.suit = random.choice(["Hearts", "Diamonds", "Spades", "Clubs"])
+        elif(value not in range(1, 14)):
             raise ValueError("Invalid value")
-        self.suit = suit
+        else:
+            self.suit = suit
         self.value = value
     
     def get_value(self):
