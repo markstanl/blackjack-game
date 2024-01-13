@@ -10,6 +10,7 @@ class Card:
             raise ValueError("Invalid value")
         else:
             self.suit = suit
+        self.suit_icon = {"Hearts": "♥", "Diamonds": "♦", "Spades": "♠", "Clubs": "♣"}[self.suit]
         self.value = value
     
     def get_value(self):
@@ -29,3 +30,10 @@ class Card:
 
     def __getitem__(self, key):
         return self.__str__()[key]
+
+    def visualize(self):
+        suit_symbols = {"Hearts": "♥", "Diamonds": "♦", "Spades": "♠", "Clubs": "♣"}
+        top = f"┌─────────┐\n│ {self.value}       │"
+        middle = f"│    {self.suit_icon}    │\n│   {self.suit_icon*3}   │\n│    {self.suit_icon}    │"
+        bottom = f"│ {self.value:>7} │\n└─────────┘"
+        return f"{top}\n{middle}\n{bottom}"

@@ -1,12 +1,16 @@
 from card import Card
 import deck
 from deck import Deck
-import game_actions
+from game_actions import Game
+from game_actor import GameActor
+from game_actor import Dealer
 import os
 
 os.system('cls' if os.name == 'nt' else 'clear')
 
 def card_class_tester():
+
+    #Check the string method
     card1 = Card(1, "Hearts")
     if(card1.__str__() != "AH"):
         print("card_class_tester test 1 failed")
@@ -14,14 +18,16 @@ def card_class_tester():
         print("actual string: " + card1.__str__())
         return False
     try:
+        #Check the value error
         card2 = Card(0, "Hearts")
         print("card_class_tester test 2 failed")
         print("expected ValueError")
         return False
     except ValueError:
         pass
-    
+
     try:
+        #Check the value error on suit setting
         card3 = Card(10, "hakdasfasd")
         print("card_class_tester test 3 failed")
         print("expected ValueError")
@@ -33,12 +39,12 @@ def card_class_tester():
 
 def deck_class_tester():
     deck1 = deck.Deck()
-    if(len(deck1.cards) != 52):
+    if(len(deck1.cards) != 52): # Check the initialized deck has the correct num of cards in undealt
         print("deck_class_tester test 1 failed")
         print("expected undealt length: 52")
         print("actual undealt length: " + len(deck1.cards))
         return False
-    if(len(deck1.dealt_cards) != 0):
+    if(len(deck1.dealt_cards) != 0): # Check the initalized deck has not dealt any cards
         print("deck_class_tester test 2 failed")
         print("expected dealt length: 0")
         print("actual dealt length: 0" + len(deck1.cards))
@@ -46,7 +52,8 @@ def deck_class_tester():
     
     deck1.deal()
 
-    if(len(deck1.cards) != 51):
+    #Check that dealing cards updates the cards as expected
+    if(len(deck1.cards) != 51): 
         print("deck_class_tester test 3 failed")
         print("expected undealt length: 51")
         print("actual undealt length: " + len(deck1.cards))
@@ -60,6 +67,7 @@ def deck_class_tester():
     test_card = deck1.dealt_cards[0]
     deck1.shuffle()
 
+    # Check that shuffling the deck creates a different order
     if(test_card == deck1.cards[0]):
         print("deck_class_tester test 5 failed")
         print("expected first card to not be " + test_card)
@@ -85,24 +93,15 @@ def deck_class_tester():
     
     return True
 
-def game_actions_tester_playing():
+def game_actors_tester():
     Ace1 = Card(1, "Hearts")
     Ace2 = Card(1, "Spades")
     King = Card(13, "Hearts")
     Nine = Card(9, "Diamonds")
     player_hand1 = [Ace1, King]
-    dealer_hand1 = [Nine, Ace2]
+    player = GameActor(hand = player_hand1)
+    print(player.visualize())
 
-    #test for blackjack
-    game1 = game_actions.GameActions(player_hand1, dealer_hand1)
-    game1_return = game1.play_game()
-    if(game1_return != 2.5):
-        print("game_actions_tester_playing blackjack test 1 failed")
-        print("expected game return value: 2.5")
-        print("actual game return value: " + game1_return)
-        return False
-    
-    #test dealer draws to 17 when handed an ace
     
 
 def run_all_tests():
@@ -118,8 +117,8 @@ def run_all_tests():
     return card_class_tester_bool and deck_class_tester_bool
 
 def main():
-    run_all_tests()
-    ##game_actions_tester_playing()
+    #run_all_tests()
+    game_actors_tester()
 
 if __name__ == "__main__":
     main()
