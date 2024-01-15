@@ -72,8 +72,8 @@ class Game:
                 self.bet_list.append(player.make_bet(self.bet_size))
 
         # SHOWS THE USERS HANDS
-        for num in range(len(self.players)): # For each player
-            print(f"{self.players[num].player_name} hand:")
+        for player in self.players: # For each player
+            print(f"{player.player_name} hand:")
             self.print_player_hand_info(player)
             time.sleep(2)
 
@@ -104,13 +104,25 @@ class Game:
                     self.players[num].collect_winnings(self.insurance_bet_list[num]*2)
         else: # if the dealer does not have blackjack we want to play through the other hands
             for player in self.players:
-                print(player.__str__)
                 if not self.blackjack_player[self.players.index(player)]:
+                    print(f"{player.player_name}'s turn")
+                    print("Current hand: ")
+                    print(player.visualize())
+                    print("Current bet: "+str(self.bet_list[self.players.index(player)]))
+                    time.sleep(2)
+                    count = 0
                     while(player.can_split()):
+                        if count > 0:
+                            print("Current hand: ")
+                            print(player.visualize())
+                            print("Current bet: "+str(self.bet_list[self.players.index(player)]))
+                            time.sleep(2)
                         self.split_option(player)
+                        count += 1
                     self.play_hand(player)
+
                 else:
-                    print(f"{self.players[num].player_name}'s blackjack")
+                    print(f"{player.player_name}'s blackjack")
         
         #at this point, all players should be done, we want the dealer to show, and then hit until 16, and soft 17
         print("Dealer's Hand:")
@@ -121,26 +133,28 @@ class Game:
         self.dealer_draw(self.dealer)
 
         for player in self.players:
-            if(player.get_hand_value() == self.dealer.get_hand_value()):
-                print(f"{self.players[num].player_name} push")
+            if(player.get_hand_value() > 21 or self.dealer.get_hand_value() > player.get_hand_value()):
+                print(f"{player.get_name()} loses")
+
+            elif(player.get_hand_value() == self.dealer.get_hand_value()):
+                print(f"{player.player_name} push")
                 player.collect_winnings(self.bet_list[self.players.index(player)]) # return the amount bet to the player
 
-            elif(player.get_hand_value() > self.dealer.get_hand_value()):
-                print(f"{self.players[num].player_name} wins")
+            elif(self.dealer.get_hand_value() > 21 or player.get_hand_value() > self.dealer.get_hand_value()):
+                print(f"{player.player_name} wins")
                 player.collect_winnings(self.bet_list[self.players.index(player)]*2) # return double the amount
-            
-            else:
-                print(f"{self.players[num].player_name} lose")
 
 
     def dealer_draw(self, dealer: Dealer):
         #the dealer hits until they get to 17+ and that that 17 is not soft
-        while dealer.get_hand_value() < 17 and dealer.get_hand_value() == 17 and dealer.ace_count > 0:
+        while dealer.get_hand_value() < 17 or (dealer.get_hand_value() == 17 and dealer.ace_count > 0):
             self.hit(dealer) # hit the dealer
             print("Dealer's current hand")
-            self.print_player_hand_info(dealer) # print the dealer info
+            print(dealer.visualize()) # print the dealer hand visually
+            time.sleep(1)
         if(dealer.get_hand_value() > 21):
             print("Dealer bust!")
+        print(f"Dealer has {dealer.get_hand_value()}")
 
     def check_for_blackjack(self):
         for player in self.players:
@@ -192,13 +206,10 @@ class Game:
         pass
     
     def play_hand(self, player: GameActor):
-        print(f"{player.player_name}'s turn")
-        print("Current hand: ")
-        print(player.visualize())
-        print("Current bet: "+str(self.bet_list[self.players.index(player)]))
-        time.sleep(3)
         finished = False
+        has_hit = False
         while not finished:
+            if has_hit: break
             self.print_player_hand_value(player)
             player_input = input("Do you want to hit, stand, or double down? (H/S/D): ")
             #Quick conditional for valid input, and check that the player can doubel down
@@ -209,6 +220,7 @@ class Game:
                     player_input = input("Invalid input. Do you want to hit, stand, or double down? (H/S/D): ")
                     
             if player_input.upper() == "H": #the hit option
+                has_hit = True
                 self.hit(player)
                 print("You hit. Current hand: ")
                 self.print_player_hand_info(player)
@@ -233,6 +245,7 @@ class Game:
                             break
                         finished = True
                         time.sleep(1)
+                        player_input = ""
                     else: #stand option
                         print("You stand. Current hand: ")
                         self.print_player_hand_info(player)
@@ -251,6 +264,7 @@ class Game:
                 #doubles the bet
                 self.bet_list[self.players.index(player)] += player.make_bet(self.bet_list[self.players.index(player)]) 
                 print("current bet: "+str(self.bet_list[self.players.index(player)]))
+                time.sleep(2)
                 if player.get_hand_value() > 21:
                     print("You bust")
                 finished = True
@@ -270,20 +284,24 @@ class Game:
                 # add the actor to the player list
                 self.players.insert(self.players.index(player)+1, split_game_actor)
                 # add the bet to the bet list
-                self.bet_list.insert(self.players.index(player)+1, split_game_actor.bet_size())
+                self.bet_list.insert(self.players.index(player)+1, split_game_actor.bet_size)
                 #add the removed card to the new player
-                split_game_actor.add_card(self.split(player))
+                split_game_actor.add_card(player.split())
                 #hit them both to put them at a new hand
                 self.hit(split_game_actor)
                 self.hit(player)
 
                 #print the current hand after hit
                 print(player.player_name+"'s new hand:")
-                self.print_player_hand_info(player)
+                print(player.visualize())
 
                 print(split_game_actor.player_name+"'s new hand:")
-                self.print_player_hand_info(split_game_actor)
+                print(split_game_actor.visualize())
 
+                time.sleep(2)
+
+                print(f"{player.player_name}'s Hand:")
+                self.print_player_hand_info(player)
 
     def offer_insurance(self, player: GameActor):
         print(f"Player {self.players.index(player)+1}'s turn")

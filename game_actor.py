@@ -52,6 +52,9 @@ class GameActor:
                 ace_count += 1
         return ace_count
     
+    def get_name(self):
+        return self.player_name
+    
     def clear_hand(self):
         self.hand = []
 
@@ -173,7 +176,7 @@ class Dealer:
         if len(str(card)) == 2:
             str_repr += f"│ {str(card)[0]:<7} │  │░░░░░░░░░│  "
         else:
-            str_repr += f"│ {str(card)[0]:<6} │  │░░░░░░░░░│  "
+            str_repr += f"│ {str(card)[:3]:<7} │  │░░░░░░░░░│  "
         str_repr += "\n"
         str_repr += f"│    {card.suit_icon}    │  │░░░░░░░░░│  "
         str_repr += "\n"
@@ -195,7 +198,7 @@ class Dealer:
             if len(str(card)) == 2:
                 str_repr += f"│ {str(card)[0]:<7} │  "
             else:
-                str_repr += f"│ {str(card)[:2]:<6} │  "
+                str_repr += f"│ {str(card)[:3]:<7} │  "
         str_repr += "\n"
         for card in self.hand:
             str_repr += f"│    {card.suit_icon}    │  "
