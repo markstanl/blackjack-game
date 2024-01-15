@@ -1,5 +1,5 @@
 # Blackjack Game
-Blackjack is a simply gambling game popular among casinos worldwide. I am recreating it in
+Blackjack is a simple gambling game popular among casinos worldwide. I am recreating it in
 python using object-oriented programming. But, my eventual goal is to make a blacjack bot.
 I will start off by just making a functional blackjack game. Then, I will confirm basic strategy with
 a Monte Carlo simulation, by testing different hand setups with different strategy and seeing the best result.
