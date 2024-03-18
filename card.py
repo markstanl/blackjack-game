@@ -8,6 +8,7 @@ class Card:
             self.suit = random.choice(["Hearts", "Diamonds", "Spades", "Clubs"])
         elif(value not in range(1, 14)):
             raise ValueError("Invalid value")
+            print("lmao")
         else:
             self.suit = suit
         self.suit_icon = {"Hearts": "♥", "Diamonds": "♦", "Spades": "♠", "Clubs": "♣"}[self.suit]
